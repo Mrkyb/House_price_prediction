@@ -1,4 +1,4 @@
-{%load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,8 +20,8 @@
             <div class="plan-title">Property Valuation Platform</div>
             
             <div class="header-info">
-                <div>May 28, 2025, 10:51 pm</div>
-                <div>Market Year:  2025</div>
+                <div>{% now "F j, Y, g:i a" %}</div>
+                <div>Market Year: {% now "Y" %}</div>
             </div>
             <div class="divider"></div>
         </header>
@@ -32,71 +32,90 @@
                     <h2>Create Your Account</h2>
                     <p>Join our platform to access advanced property valuation tools and market insights</p>
                 </div>
+                
+                <!-- Error Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                        <div class="alert alert-danger" style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 10px; margin-bottom: 20px; border-radius: 4px;">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
                 <section id="signupForm">
-                <form  method="post" action="{% url 'signup' %}" > 
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{% url 'login' %}" />
-                    
-                    <!-- Username Field (lowercase 'name') -->
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    <form method="post" action="{% url 'signup' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'house_price_prediction' %}" />
+                        
+                        <!-- Username Field -->
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="username" name="username" 
+                                       value="{{ form_data.username|default:'' }}" 
+                                       placeholder="Enter your username" required>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Email Field -->
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" name="email" 
+                                       value="{{ form_data.email|default:'' }}" 
+                                       placeholder="Enter your email" required>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Password Field -->
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="password" name="password" placeholder="Create a password" required>
-                            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                        
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" name="password" placeholder="Create a password" required>
+                                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                            </div>
+                            <div class="password-strength">
+                                <div class="strength-meter" id="strengthMeter"></div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Confirm Password Field -->
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="confirmPassword" name="confirm_password" placeholder="Confirm Password" required>
+                        
+                        <!-- Confirm Password Field -->
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="confirmPassword" name="confirm_password" placeholder="Confirm Password" required>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Terms Checkbox -->
-                    <div class="terms">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">I agree to the Terms & Privacy Policy.</label>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn">Create Account</button>
-                    
-                    <!-- Display Django Error Messages -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-danger">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                </form>
+                        
+                        <!-- Terms Checkbox -->
+                        <div class="terms">
+                            <input type="checkbox" id="terms" name="terms" {% if form_data.terms_checked %}checked{% endif %} required>
+                            <label for="terms">I agree to the Terms & Privacy Policy.</label>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn">Create Account</button>
+                    </form>
                 </section>
                 
-                <div class="success-message" id="successMessage">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Account Created Successfully!</h3>
-                    <p>Welcome to our platform. You can now access our property valuation tools.</p>
-                </div>
+                <!-- Success Message (shown after redirect) -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <div class="success-message" style="display: block;">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>{{ message }}</h3>
+                            <p>Welcome to our platform. You can now access our property valuation tools.</p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 
                 <div class="divider-text">
                     <span>OR SIGN UP WITH</span>
@@ -126,7 +145,7 @@
                 </div>
                 
                 <div class="copyright">
-                    &copy; 2025 House Price Information System | All rights reserved | Data updated daily from MLS sources.
+                    &copy; {% now "Y" %} House Price Prediction System | ML Model: Random Forest Regression | Accuracy: 92.4%.
                 </div>
             </div>
         </div>
@@ -168,52 +187,6 @@
                 meter.style.background = '#28a745';
             }
         });
-        
-        // Form submission
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Validate email
-            if (!validateEmail(email)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-            
-            // Check password match
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            // Check password strength
-            if (password.length < 8) {
-                alert('Password must be at least 8 characters long');
-                return;
-            }
-            
-            // Show success message
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Reset form
-            this.reset();
-            
-            // Reset password meter
-            document.getElementById('strengthMeter').style.width = '0';
-            
-            // Scroll to success message
-            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-        });
-        
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
     </script>
 </body>
 </html>

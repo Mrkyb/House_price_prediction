@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator  # Add this import
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
@@ -7,11 +8,15 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.urls import reverse  # ADD THIS IMPORT
+from django.urls import reverse
 import pandas as pd
+from .models import HousePricePrediction
 from .forms import HousePriceForm
 from .utils import house_price
 from django.contrib.auth.views import LogoutView
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.conf import settings
+
 
 class CustomLogoutView(LogoutView):
     next_page = 'login'  # Set default redirect
@@ -23,9 +28,6 @@ def get_dataset():
     except Exception as e:
         print(f"Dataset loading failed: {e}")
         return None
-
-from django.utils.http import url_has_allowed_host_and_scheme
-
 def user_login(request):
     print(f"User authenticated: {request.user.is_authenticated}")
     
@@ -135,6 +137,18 @@ def house_price_prediction(request):
             rate = getattr(settings, 'USD_TO_TSH_RATE', 2600)
             predicted_price_tsh = predicted_price_usd * rate
             
+            # Save to database
+            HousePricePrediction.objects.create(
+                user=request.user,
+                square_feet=data['SquareFeet'],
+                bedrooms=data['bedrooms'],
+                bathrooms=data['bathrooms'],
+                neighborhood=data['neighborhood'],
+                year_built=data['year_built'],
+                predicted_price_usd=predicted_price_usd,
+                predicted_price_tsh=predicted_price_tsh
+            )
+            
             if dataset is not None:
                 filtered = dataset[
                     (dataset['Neighborhood'] == data['neighborhood']) &
@@ -143,6 +157,8 @@ def house_price_prediction(request):
                 if not filtered.empty:
                     idx = (filtered['SquareFeet'] - data['SquareFeet']).abs().idxmin()
                     closest_match = filtered.loc[idx].to_dict()
+            
+            messages.success(request, "Prediction saved successfully!")
             
         except Exception as e:
             messages.error(request, f"Prediction error: {str(e)}")
@@ -153,3 +169,49 @@ def house_price_prediction(request):
         'predicted_price_tsh': f"TSh {predicted_price_tsh:,.0f}" if predicted_price_tsh else None,
         'closest_match': closest_match,
     })
+
+@login_required
+def prediction_history(request):
+    predictions = HousePricePrediction.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+    
+    paginator = Paginator(predictions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'predictions': page_obj,  # Changed from page_obj to predictions
+    }
+
+    return render(request, 'house_price/history.html', context)
+
+import csv
+from django.http import HttpResponse
+
+@login_required
+def export_predictions_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="predictions.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow([
+        'Date', 'Size (sqft)', 'Bedrooms', 'Bathrooms', 
+        'Neighborhood', 'Year Built', 'Predicted Price (USD)', 'Predicted Price (TSh)'
+    ])
+    
+    predictions = HousePricePrediction.objects.filter(user=request.user).order_by('-created_at')
+    
+    for prediction in predictions:
+        writer.writerow([
+            prediction.created_at.strftime("%Y-%m-%d %H:%M"),
+            prediction.square_feet,
+            prediction.bedrooms,
+            prediction.bathrooms,
+            prediction.neighborhood,
+            prediction.year_built,
+            prediction.predicted_price_usd,
+            prediction.predicted_price_tsh
+        ])
+    
+    return response

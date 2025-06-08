@@ -40,7 +40,13 @@
                         <i class="fas fa-times"></i>
                     </div>
                 </a>
-
+                <a class="menu-item" href="{% url 'prediction_history' %}">
+                    <i class="fas fa-history"></i>
+                    <div class="menu-label">
+                        <span>Prediction History</span>
+                        <i class="fas fa-check checkmark"></i>
+                    </div>
+                </a>
                 <a class="menu-item" href="{% url 'login' %}">
                     <i class="fas fa-sign-out-alt"></i>
                     <div class="menu-label">
@@ -83,9 +89,17 @@
                                 <li>Current market trends</li>
                                 <li>Historical pricing patterns</li>
                             </ul>
+                                                        <h4>Why Use Our Service?</h4>
+                            <p>Whether you're buying, selling, or refinancing, our tool provides:</p>
+                            <ul>
+                                <li>Accurate price estimates</li>
+                                <li>Market insights and trends</li>
+                                <li>Data-driven decision support</li>
+                                <li>Easy-to-use interface</li>
+                            </ul>
                         </div>
                     </div>
-                    
+
                     <div class="prediction-section">
                         <div class="prediction-form">
                             <h3><i class="fas fa-calculator"></i> Enter Property Details</h3>
@@ -186,7 +200,15 @@
                         </div>
                     </div>
                 </div>
-                
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <div class="footer">
                     <p>© 2025 House Price Prediction System | ML Model: Random Forest Regression | Accuracy: 92.4%</p>
                 </div>

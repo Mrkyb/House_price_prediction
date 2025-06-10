@@ -1,0 +1,21 @@
+#for Import export
+pip install django-import-export
+
+#to Loan model
+pip install smart_open
+
+#for graphs
+pip install plotly
+
+#for data 
+pip install pandas spicy numpy
+pip install django scikit-learn pandas numpy joblib
+
+#for Django
+pip install Django
+
+
+
+
+
+

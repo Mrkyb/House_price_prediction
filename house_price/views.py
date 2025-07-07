@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator  # Add this import
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
@@ -173,7 +173,7 @@ def house_price_prediction(request):
 @login_required
 def prediction_history(request):
     predictions = HousePricePrediction.objects.filter(
-        user=request.user
+        user=request.user, is_deleted=False
     ).order_by('-created_at')
     
     paginator = Paginator(predictions, 10)
@@ -215,3 +215,21 @@ def export_predictions_csv(request):
         ])
     
     return response
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from .models import HousePricePrediction  # Adjust if your model name is different
+
+@login_required
+def clear_user_history(request):
+    if request.method == "POST":
+        HousePricePrediction.objects.filter(user=request.user).delete()
+    return redirect('prediction_history')
+
+@login_required
+def delete_prediction(request, prediction_id):
+    prediction = get_object_or_404(HousePricePrediction, id=prediction_id, user=request.user)
+    if request.method == "POST":
+        prediction.is_deleted = True
+        prediction.save()
+    return redirect('prediction_history')

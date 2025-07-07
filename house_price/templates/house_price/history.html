@@ -67,6 +67,7 @@
                         <th>Year Built</th>
                         <th>Predicted Price (USD)</th>
                         <th>Predicted Price (TSh)</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,6 +81,14 @@
                         <td>{{ prediction.year_built }}</td>
                         <td>${{ prediction.predicted_price_usd|floatformat:2 }}</td>
                         <td>TSh {{ prediction.predicted_price_tsh|floatformat:0 }}</td>
+                        <td>
+                            <form action="{% url 'delete_prediction' prediction.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this prediction?');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -114,10 +123,15 @@
             <a href="{% url 'export_predictions' %}" class="btn btn-success mb-3">
                 <i class="fas fa-file-export"></i> Export to CSV
             </a>
-            
             <a href="{% url 'house_price_prediction' %}" class="btn btn-primary ms-2">
                 <i class="fas fa-calculator"></i> Make New Prediction
             </a>
+            <form action="{% url 'clear_user_history' %}" method="post" class="d-inline ms-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mb-3" onclick="return confirm('Are you sure you want to clear your prediction history?');">
+                    <i class="fas fa-trash"></i> Clear My History
+                </button>
+            </form>
         </div>
     </div>
 

@@ -1,19 +1,24 @@
-#for Import export
-pip install django-import-export
+# for Import export
+django-import-export
 
-#to Loan model
-pip install smart_open
+# to Loan model
+smart_open
 
-#for graphs
-pip install plotly
+# for graphs
+plotly
 
-#for data 
-pip install pandas spicy numpy
-pip install django scikit-learn pandas numpy joblib
+# for data 
+pandas
+scipy
+numpy
+django
+scikit-learn
+joblib
 
-#for Django
-pip install Django
+# to run the server
 
+#to install the lebrary to run this code bellow in cmd
+# pip install -r requirements.txt
 
 
 

@@ -11,6 +11,7 @@ class HousePricePrediction(models.Model):
     predicted_price_usd = models.DecimalField(max_digits=12, decimal_places=2)
     predicted_price_tsh = models.DecimalField(max_digits=12, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Prediction for {self.square_feet} sqft in {self.neighborhood}"

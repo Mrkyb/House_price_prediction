@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-1x@d+thn5p=y9cdau=9#8tb$(!+_38(q_s@-i=y=p10mtv1&-^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "house-price-prediction-18zoz1owt-mrkybs-projects.vercel.app"
+]
 
 # Application definition
 INSTALLED_APPS = [
